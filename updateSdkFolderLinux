@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rm -r ../SDK/MwEnet
+
+mkdir ../SDK/MwEnet
+mkdir ../SDK/MwEnet/mw/enet
+
+cp libMwLibrary2.a ../SDK/MwEnet
+cp mw/*.h ../SDK/MwEnet/mw
