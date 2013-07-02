@@ -40,12 +40,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\MwExtra\include;C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\enet\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\MwExtra\lib-d;$(LibraryPath);C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\enet\lib\debug</LibraryPath>
+    <IncludePath>..\SDK\MwExtra\include;..\SDK\enet\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\SDK\MwExtra\lib-d;..\SDK\enet\lib\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\MwExtra\include;C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\enet\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\MwExtra\lib-r;C:\Users\Marcus\Documents\Visual Studio 2012\Projects\SDK\enet\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\SDK\MwExtra\include;..\SDK\enet\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\SDK\MwExtra\lib-r;..\SDK\enet\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
