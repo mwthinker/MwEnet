@@ -234,8 +234,7 @@ namespace mw {
 			case PACKET:
 				{
 					// [0]=type,[1]=id,[2...]=data
-					std::vector<char> data(packet->data+2,packet->data+packet->dataLength);
-					return InternalPacket(Packet(data),id,PacketType::RELIABLE,toId);
+					return InternalPacket(mw::Packet((char*) packet->data+2, packet->dataLength), id, PacketType::RELIABLE,toId);
 				}
 			}
 

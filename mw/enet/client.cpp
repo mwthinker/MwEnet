@@ -158,8 +158,7 @@ namespace mw {
 				{
 					ENetPacket* packet = eNetEvent.packet;
 					//[0]=type,[1]=id,[2...]=data
-					std::vector<char> tmp(packet->data+2,packet->data+packet->dataLength);
-					return InternalPacket(Packet(tmp),id,PacketType::RELIABLE); //Doesn't matter wich PacketType!
+					return InternalPacket(Packet((char*) packet->data + 2, packet->dataLength), id, PacketType::RELIABLE); //Doesn't matter which packet type!
 				}
 			}
 			return InternalPacket(Packet(),0,PacketType::RELIABLE);

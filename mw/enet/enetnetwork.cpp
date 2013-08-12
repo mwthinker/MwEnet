@@ -5,7 +5,8 @@
 #include <iostream>
 #include <cstdio>
 #include <queue>
-#include <cstring>
+#include <algorithm>
+#include <array>
 
 namespace mw {
 	namespace enet {
@@ -73,21 +74,20 @@ namespace mw {
 		// 0 char type    |
 		// 1 char id      |
 		// 2 char data[N] |
-		ENetPacket* EnetNetwork::createEnetPacket(const Packet& dataPacket, char id, PacketType type) const {
-			char data[256];
-			int size = 2 + dataPacket.size();
-			if (256 > size) {
+		ENetPacket* EnetNetwork::createEnetPacket(const Packet& packet, char id, PacketType type) const {
+			char data[Packet::MAX_SIZE];
+			int size = 2 + packet.size();
+			if (size <= Packet::MAX_SIZE) {
 				data[0] = PACKET;
 				data[1] = id;
-				const std::vector<char>& tmp = dataPacket.getData();
-				std::memcpy(data+2,&tmp[0],tmp.size());
+				std::copy(packet.getData(), packet.getData() + packet.size(), data + 2);
 			}
 
 			ENetPacket* eNetPacket = 0;
 			if (type == PacketType::RELIABLE) {
-				eNetPacket = enet_packet_create(data,size,ENET_PACKET_FLAG_RELIABLE);
+				eNetPacket = enet_packet_create(data,size, ENET_PACKET_FLAG_RELIABLE);
 			} else {
-				eNetPacket = enet_packet_create(data,size,ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
+				eNetPacket = enet_packet_create(data,size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
 			}
 
 			return eNetPacket;
