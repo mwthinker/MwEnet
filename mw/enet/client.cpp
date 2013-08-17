@@ -71,10 +71,8 @@ namespace mw {
 					(eventStatus = enet_host_service(client_, &eNetEvent, 0)) > 0) {
 						switch(eNetEvent.type) {
 						case ENET_EVENT_TYPE_CONNECT:
-							{
-								printf("(Client) We got a new connection from %x\n", eNetEvent.peer->address.host);
-								peer_ = eNetEvent.peer;
-							}
+							printf("(Client) We got a new connection from %x\n", eNetEvent.peer->address.host);
+							peer_ = eNetEvent.peer;
 							break;
 						case ENET_EVENT_TYPE_RECEIVE:
 							if (getStatus() != NOT_ACTIVE) {
@@ -106,7 +104,7 @@ namespace mw {
 				while (id_ != -1 && id_ != 0 && peer_ != 0 && getStatus() != NOT_ACTIVE && !sendPackets_.empty()) {
 					InternalPacket iPacket = sendPackets_.front();
 
-					ENetPacket* eNetPacket = createEnetPacket(iPacket.data_,iPacket.toId_, iPacket.type_); // id is set to be the client which will receive it. id = 0 means every client.
+					ENetPacket* eNetPacket = createEnetPacket(iPacket.data_, iPacket.toId_, iPacket.type_); // id is set to be the client which will receive it. id = 0 means every client.
 					//std::cout << "size: " << pair.second << " id: " << pair.second << std::endl;
 
 					// Send the packet to the peer over channel id 0.
@@ -146,22 +144,17 @@ namespace mw {
 			char id = packet->data[1];
 			switch (type) {
 			case CONNECT_INFO:
-				{
-					id_ = id;
-					ids_.clear();
-					for (unsigned int i = 2; i < packet->dataLength; ++i) {
-						ids_.push_back(packet->data[i]);
-					}
-					break;
+				id_ = id;
+				ids_.clear();
+				for (unsigned int i = 2; i < packet->dataLength; ++i) {
+					ids_.push_back(packet->data[i]);
 				}
+				break;
 			case PACKET:
-				{
-					ENetPacket* packet = eNetEvent.packet;
-					//[0]=type,[1]=id,[2...]=data
-					return InternalPacket(Packet((char*) packet->data + 2, packet->dataLength), id, PacketType::RELIABLE); //Doesn't matter which packet type!
-				}
+				//[0]=type,[1]=id,[2...] = data
+				return InternalPacket(Packet((char*) packet->data + 2, packet->dataLength - 2), id, PacketType::RELIABLE); // Doesn't matter which packet type!
 			}
-			return InternalPacket(Packet(),0,PacketType::RELIABLE);
+			return InternalPacket(Packet(), 0, PacketType::RELIABLE);
 		}
 
 	} // Namespace enet.

@@ -16,7 +16,7 @@ namespace mw {
 			id_ = Network::getServerId();
 
 			// The id to be assigned to the next connected client.
-			currentId_ = id_+1;
+			currentId_ = id_ + 1;
 			serverFilter_ = serverFilter;
 		}
 
@@ -40,9 +40,8 @@ namespace mw {
 					receivePackets_.pop();
 				}
 
-				// Create a host using enet_host_create
+				// Create a host.
 				server_ = enet_host_create(&address_, 32, 2, 0, 0);
-
 				if (server_ == NULL) {
 					fprintf(stderr, "An error occured while trying to create an ENet server host\n");
 					exit(EXIT_FAILURE);
@@ -157,8 +156,7 @@ namespace mw {
 						// Send the packet to the peer over channel id 0.
 						// enet handles the cleen up of eNetPacket;
 						for (auto it = peers_.begin(); it != peers_.end(); ++it) {
-							int id = it->second;					
-
+							int id = it->second;
 							// Send to all?
 							if (iPacket.toId_== 0) {
 								// The sender?
@@ -166,7 +164,6 @@ namespace mw {
 									// Skip to return data to the sender.
 									continue;
 								}
-
 								ENetPacket* eNetPacket = createEnetPacket(iPacket.data_,iPacket.fromId_,iPacket.type_);
 								ENetPeer* peer = it->first;
 								enet_peer_send(peer, 0, eNetPacket);
@@ -174,7 +171,6 @@ namespace mw {
 								ENetPacket* eNetPacket = createEnetPacket(iPacket.data_,iPacket.fromId_,iPacket.type_);
 								ENetPeer* peer = it->first;
 								enet_peer_send(peer, 0, eNetPacket);
-
 								// Only send to one client.
 								break;
 							}
@@ -201,8 +197,8 @@ namespace mw {
 
 		std::vector<int> Server::getConnectionIds() const {
 			std::vector<int> ids;
-			for (auto it = peers_.begin(); it != peers_.end(); ++it) {
-				ids.push_back(it->second);
+			for (const auto& pair : peers_) {
+				ids.push_back(pair.second);
 			}
 			return ids;
 		}
@@ -210,7 +206,6 @@ namespace mw {
 		// protected
 		Server::InternalPacket Server::receive(ENetEvent eNetEvent) {
 			ENetPacket* packet = eNetEvent.packet;
-
 			//char id = packet->data[1];
 			//Find the id for the client which sent the package.
 			auto it = peers_.begin();
@@ -221,28 +216,21 @@ namespace mw {
 			}
 
 			char id = it->second;
-
 			// TODO!! Stop connection which violates the protocol.
 			char type = packet->data[0];
 			char toId = packet->data[1];
-
 			switch (type) {
 			case CONNECT_INFO:
 				// ERROR. SERVER SHOULD ONLY SEND NOT RECEIVE CONNECT_INFO.
 				// TODO!! Stop connection which violates the protocol.
 				break;
 			case PACKET:
-				{
-					// [0]=type,[1]=id,[2...]=data
-					return InternalPacket(mw::Packet((char*) packet->data+2, packet->dataLength), id, PacketType::RELIABLE,toId);
-				}
+				// [0]=type,[1]=id,[2...] = data
+				return InternalPacket(mw::Packet((char*) packet->data + 2, packet->dataLength - 2), id, PacketType::RELIABLE, toId);
 			}
-
 			// TODO!! Stop connection which violates the protocol. ERROR.
-			return InternalPacket(Packet(),0,PacketType::RELIABLE);
+			return InternalPacket(Packet(), 0, PacketType::RELIABLE);
 		}
-
-		// private
 
 		// Sends connectInfo to new connected client. Client is assigned
 		// the number id.
@@ -254,16 +242,15 @@ namespace mw {
 		void Server::sendConnectInfoToPeers(const std::vector<Pair>& peers) const {
 			char data[256];
 			data[0] = CONNECT_INFO;
-			//peers_.push_back(Pair(peer,id));
-			int size = peers.size();
-			for (auto it = peers.begin(); it != peers.end(); ++it) {
-				data[1] = it->second;
+			for (const auto& pair : peers) {
+				data[1] = pair.second;
+				int size = peers.size();
 				for (int i = 0; i < size; ++i) {
 					data[i+2] = peers[i].second;
 				}
 
-				ENetPacket* eNetPacket = enet_packet_create(data,size+2,ENET_PACKET_FLAG_RELIABLE);
-				enet_peer_send(it->first, 0, eNetPacket);
+				ENetPacket* eNetPacket = enet_packet_create(data, size + 2, ENET_PACKET_FLAG_RELIABLE);
+				enet_peer_send(pair.first, 0, eNetPacket);
 			}
 		}
 
