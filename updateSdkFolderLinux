@@ -3,7 +3,9 @@
 rm -r ../SDK/MwEnet
 
 mkdir ../SDK/MwEnet
+mkdir ../SDK/MwEnet/mw
 mkdir ../SDK/MwEnet/mw/enet
 
-cp libMwLibrary2.a ../SDK/MwEnet
-cp mw/*.h ../SDK/MwEnet/mw
+cp libMwEnet.a ../SDK/MwEnet
+cp mw/enet/*.h ../SDK/MwEnet/mw/enet
+

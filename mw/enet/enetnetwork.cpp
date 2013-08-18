@@ -76,7 +76,7 @@ namespace mw {
 		// 2 char data[N] |
 		ENetPacket* EnetNetwork::createEnetPacket(const Packet& packet, char id, PacketType type) const {
 			char data[Packet::MAX_SIZE];
-			int size = 2 + packet.size();
+			unsigned int size = 2 + packet.size();
 			if (size <= Packet::MAX_SIZE) {
 				data[0] = PACKET;
 				data[1] = id;
