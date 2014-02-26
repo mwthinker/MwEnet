@@ -1,17 +1,16 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(MwEnet)
+cmake_minimum_required(VERSION 2.8)
+project(MwEnet)
 if (MSVC)
 	# Exception handler model.
-	ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
-	ADD_DEFINITIONS(-DWIN32)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DWIN32)
 	
-	SET(WINDOWS_ENET_DEPENDENCIES "ws2_32;winmm")
+	set(WINDOWS_ENET_DEPENDENCIES "ws2_32;winmm")
 else (MSVC)
-	SET(CMAKE_CXX_FLAGS "-std=c++11")
+	set(CMAKE_CXX_FLAGS "-std=c++11")
 endif (MSVC)
 
 # Source files.
-SET(SOURCES_MW
+set(SOURCES_MW
 	mw/enet/enetnetwork.cpp
 	mw/enet/client.cpp
 	mw/enet/server.cpp
@@ -19,7 +18,8 @@ SET(SOURCES_MW
 	mw/enet/client.h
 	mw/enet/server.h
 )
-SET(SOURCES_ENET
+
+set(SOURCES_ENET
 	enet-1.3.9/enet/callbacks.c
 	enet-1.3.9/enet/callbacks.h
 	enet-1.3.9/enet/compress.c
@@ -41,6 +41,7 @@ SET(SOURCES_ENET
 )
 # End of source files.
 
-ADD_SUBDIRECTORY(MwExtra)
-INCLUDE_DIRECTORIES("MwExtra/src" "enet-1.3.9")
-ADD_LIBRARY(MwEnet STATIC ${SOURCES_MW} ${SOURCES_ENET})
+add_subdirectory(MwExtra)
+
+include_directories("MwExtra/src" "enet-1.3.9")
+add_library(MwEnet STATIC ${SOURCES_MW} ${SOURCES_ENET})
