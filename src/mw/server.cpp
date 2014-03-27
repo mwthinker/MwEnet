@@ -4,7 +4,6 @@
 #include <iostream>
 
 namespace mw {
-	namespace enet {
 		
 		Server::Server(int port, ServerFilter* serverFilter) {
 			maxNbrOfRemoteClients_ = 4;
@@ -254,5 +253,4 @@ namespace mw {
 			}
 		}
 
-	} // Namespace enet.
 } // Namespace mw.
