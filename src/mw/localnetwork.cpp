@@ -54,17 +54,11 @@ namespace mw {
 	}
 
 	void LocalNetwork::update() {
-	}
-
-	std::vector<int> LocalNetwork::getConnectionIds() const {
-		std::vector<int> ids;
-		ids.push_back(getId());
-		return ids;
-	}
+	}	
 
 	// Return the same id as server id.
 	int LocalNetwork::getId() const {
-		return getServerId();
+		return Network::SERVER_ID;
 	}
 
 } // Namespace mw.

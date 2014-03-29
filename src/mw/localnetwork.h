@@ -26,8 +26,6 @@ namespace mw {
 
 		void update() override;
 
-		std::vector<int> getConnectionIds() const override;
-
 		// Return the same id as server id.
 		int getId() const override;
 

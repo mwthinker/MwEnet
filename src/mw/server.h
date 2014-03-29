@@ -17,8 +17,6 @@ namespace mw {
 		void update() override;
 		
 		int getId() const override;
-		
-		std::vector<int> getConnectionIds() const override;
 
 	protected:
 		InternalPacket receive(ENetEvent eNetEvent) override;

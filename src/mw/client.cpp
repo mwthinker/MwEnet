@@ -131,11 +131,7 @@ namespace mw {
 
 	int Client::getId() const {
 		return id_;
-	}
-
-	std::vector<int> Client::getConnectionIds() const {
-		return ids_;
-	}
+	}	
 
 	Client::InternalPacket Client::receive(ENetEvent eNetEvent) {
 		ENetPacket* packet = eNetEvent.packet;

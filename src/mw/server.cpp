@@ -12,7 +12,7 @@ namespace mw {
 			address_.port = port;
 
 			// Garanties that the server always has the correct id.
-			id_ = Network::getServerId();
+			id_ = Network::SERVER_ID;
 
 			// The id to be assigned to the next connected client.
 			currentId_ = id_ + 1;
@@ -192,14 +192,6 @@ namespace mw {
 
 		int Server::getId() const {
 			return id_;
-		}
-
-		std::vector<int> Server::getConnectionIds() const {
-			std::vector<int> ids;
-			for (const auto& pair : peers_) {
-				ids.push_back(pair.second);
-			}
-			return ids;
 		}
 
 		// protected

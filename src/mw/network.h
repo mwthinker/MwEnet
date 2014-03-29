@@ -36,6 +36,8 @@ namespace mw {
 	// The server is responsible to give all client a unique  value.
 	class Network {
 	public:
+		const int SERVER_ID = 1;
+
 		enum Status {
 			ACTIVE, DISCONNECTING, NOT_ACTIVE
 		};
@@ -78,9 +80,7 @@ namespace mw {
 		virtual void stop() = 0;
 
 		// Must be called frequently in order for the new packets to be sent and received.
-		virtual void update() = 0;
-
-		virtual std::vector<int> getConnectionIds() const = 0;
+		virtual void update() = 0;		
 
 		// Return the id. The id is assigned by the server. As long as the id
 		// is a positive value it is valid. The id is guarantied to not change after
@@ -88,20 +88,9 @@ namespace mw {
 		// is active.
 		virtual int getId() const = 0;
 
-		// Return the server id. Is allways a positive value greater than zero.
-		static int getServerId() {
-			return 1;
-		}
-
 		// Return the current status for the network.
 		Status getStatus() const {
 			return status_;
-		}
-
-		// Return the number of connections. For a client it returns 1.
-		// For the server it returns the number of connected clients.
-		virtual int getNbrOfConnections() const {
-			return 0;
 		}
 
 	protected:

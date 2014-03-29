@@ -24,9 +24,6 @@ namespace mw {
 		// Override from EnetConnection.
 		int getId() const override;
 
-		// Override from EnetConnection.
-		std::vector<int> getConnectionIds() const override;
-
 	protected:
 		// Override from EnetConnection.
 		InternalPacket receive(ENetEvent eNetEvent) override;
