@@ -12,7 +12,7 @@ namespace mw {
 		virtual ~ServerFilter() {
 		}
 
-		// Reprent the type of packet rereceived.
+		// Represent the type of packet received.
 		// NEW_CONNECTION - A new connection from a client.
 		// PACKET - Data stored in a packet.
 		// DISCONNECTED - A client disconnected.
@@ -65,16 +65,16 @@ namespace mw {
 		// Only data pushed after the call to start() will be sent.	
 		virtual void pushToSendBuffer(const Packet& packet, PacketType type) = 0;
 
-		// Receives data from server.
-		// Receives reliable data from all clients and server. 
+		// Receive data from the server.
+		// Receive reliable data from all clients and the server. 
 		// Reliable packet (packet) sent through 
 		// pushToSendBuffer is passed directly here (without going through internet).
 		virtual int pullFromReceiveBuffer(Packet& packet) = 0;
 
-		// Starts the connection to the server/clients.
+		// Start the connection to the server/clients.
 		virtual void start() = 0;
 
-		// Ends all active connections.
+		// End all active connections.
 		virtual void stop() = 0;
 
 		// Must be called frequently in order for the new packets to be sent and received.
@@ -82,23 +82,23 @@ namespace mw {
 
 		virtual std::vector<int> getConnectionIds() const = 0;
 
-		// Returns the id. The id is assigned by the server. As long as the id
+		// Return the id. The id is assigned by the server. As long as the id
 		// is a positive value it is valid. The id is guarantied to not change after
 		// it is assigned by the server after a call to start, as long as the connection
 		// is active.
 		virtual int getId() const = 0;
 
-		// Returns the server id. Is allways a positive value greater than zero.
+		// Return the server id. Is allways a positive value greater than zero.
 		static int getServerId() {
 			return 1;
 		}
 
-		// Returns the current status for the network.
+		// Return the current status for the network.
 		Status getStatus() const {
 			return status_;
 		}
 
-		// Returns the number of connections. For a client it returns 1.
+		// Return the number of connections. For a client it returns 1.
 		// For the server it returns the number of connected clients.
 		virtual int getNbrOfConnections() const {
 			return 0;

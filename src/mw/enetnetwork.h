@@ -16,13 +16,10 @@ namespace mw {
 		EnetNetwork();
 		virtual ~EnetNetwork();
 
-		// Override from Network.
 		void pushToSendBuffer(const Packet& packet, PacketType type, int toId) override;
 
-		// Override from Network.
 		void pushToSendBuffer(const Packet& packet, PacketType type) override;
 
-		// Override from Network.
 		int pullFromReceiveBuffer(Packet& data) override;
 
 	protected:

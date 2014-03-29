@@ -9,22 +9,18 @@ namespace mw {
 	public:
 		Server(int port, ServerFilter* serverFilter);
 		~Server();
-
-		// Override from EnetConnection.
+		
 		void start() override;
-		// Override from EnetConnection.
+		
 		void stop() override;
-		// Override from EnetConnection.
+		
 		void update() override;
-
-		// Override from EnetConnection.
+		
 		int getId() const override;
-
-		// Override from EnetConnection.
+		
 		std::vector<int> getConnectionIds() const override;
 
 	protected:
-		// Override from EnetConnection.
 		InternalPacket receive(ENetEvent eNetEvent) override;
 
 	private:
