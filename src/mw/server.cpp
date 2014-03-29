@@ -202,11 +202,6 @@ namespace mw {
 		}
 	}
 
-	int Server::getId() const {
-		std::lock_guard<std::mutex> lock(mutex_);
-		return id_;
-	}
-
 	Server::InternalPacket Server::receive(ENetEvent eNetEvent) {
 		ENetPacket* packet = eNetEvent.packet;
 		//char id = packet->data[1];
@@ -255,10 +250,6 @@ namespace mw {
 			ENetPacket* eNetPacket = enet_packet_create(data, size + 2, ENET_PACKET_FLAG_RELIABLE);
 			enet_peer_send(pair.first, 0, eNetPacket);
 		}
-	}
-
-	Network::Status Server::getStatus() const {
-		return status_;
 	}
 
 } // Namespace mw.

@@ -15,11 +15,7 @@ namespace mw {
 		
 		void start() override;
 		
-		void stop() override;		
-		
-		int getId() const override;
-
-		Status getStatus() const override;
+		void stop() override;
 
 	protected:
 		void update();
@@ -37,14 +33,12 @@ namespace mw {
 		//		...
 		// char idN  = |?
 		void sendConnectInfoToPeers(const std::vector<Pair>& peers) const;
-
-		int id_;
+		
 		int currentId_;
 		std::vector<Pair> peers_;
 		int maxNbrOfRemoteClients_;
 		ENetAddress address_;
 		ENetHost* server_;
-		Status status_;
 
 		std::thread thread_;
 

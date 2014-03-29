@@ -142,11 +142,6 @@ namespace mw {
 		}
 	}
 
-	int Client::getId() const {
-		std::lock_guard<std::mutex> lock(mutex_);
-		return id_;
-	}
-
 	Client::InternalPacket Client::receive(ENetEvent eNetEvent) {
 		ENetPacket* packet = eNetEvent.packet;
 		char type = packet->data[0];
@@ -164,11 +159,6 @@ namespace mw {
 				return InternalPacket(Packet((char*) packet->data + 2, packet->dataLength - 2), id, PacketType::RELIABLE); // Doesn't matter which packet type!
 		}
 		return InternalPacket(Packet(), 0, PacketType::RELIABLE);
-	}
-
-	Network::Status Client::getStatus() const {
-		std::lock_guard<std::mutex> lock(mutex_);
-		return status_;
 	}
 
 } // Namespace mw.

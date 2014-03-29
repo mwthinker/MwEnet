@@ -18,10 +18,6 @@ namespace mw {
 		void start() override;
 		
 		void stop() override;
-		
-		int getId() const override;
-
-		Status getStatus() const override;
 
 	protected:
 		void update();
@@ -29,9 +25,7 @@ namespace mw {
 		InternalPacket receive(ENetEvent eNetEvent) override;
 
 	private:
-		int id_;
 		std::vector<int> ids_;
-		Status status_;
 
 		ENetPeer* peer_;
 		ENetAddress address_;

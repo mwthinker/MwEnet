@@ -43,7 +43,7 @@ namespace mw {
 				pushToSendBuffer(packet, type);
 			} else {
 				// Send to others!
-				sendPackets_.push(InternalPacket(packet, getId(), type, toId));
+				sendPackets_.push(InternalPacket(packet, id_, type, toId));
 			}
 		}
 	}
@@ -52,9 +52,9 @@ namespace mw {
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (packet.size() > 0) {
 			// Send to all, id = 0.
-			sendPackets_.push(InternalPacket(packet, getId(), type, 0));
+			sendPackets_.push(InternalPacket(packet, id_, type, 0));
 			// Sent from yourself, id = getId().
-			receivePackets_.push(InternalPacket(packet, getId(), type, getId()));
+			receivePackets_.push(InternalPacket(packet, id_, type, id_));
 		}
 	}
 
@@ -93,6 +93,16 @@ namespace mw {
 		}
 
 		return eNetPacket;
+	}
+
+	Network::Status EnetNetwork::getStatus() const {
+		std::lock_guard<std::mutex> lock(mutex_);
+		return status_;
+	}
+
+	int EnetNetwork::getId() const {
+		std::lock_guard<std::mutex> lock(mutex_);
+		return id_;
 	}
 
 } // Namespace mw.

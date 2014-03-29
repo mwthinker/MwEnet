@@ -23,6 +23,10 @@ namespace mw {
 
 		int pullFromReceiveBuffer(Packet& data) override;
 
+		int getId() const override;
+
+		Status getStatus() const override;
+		
 	protected:
 		enum EnetConnectionType {
 			CONNECT_INFO = 0,
@@ -63,6 +67,8 @@ namespace mw {
 		std::queue<InternalPacket> receivePackets_;
 
 		bool acceptNewNetworkConnections_;
+		int id_;
+		Status status_;
 		mutable std::mutex mutex_;
 
 		static int nbrOfInstances;
