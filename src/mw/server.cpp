@@ -22,7 +22,9 @@ namespace mw {
 
 	Server::~Server() {
 		stop();
-		thread_.join();
+		if (thread_.joinable()) {
+			thread_.join();
+		}
 
 		for (auto& pair : peers_) {
 			enet_peer_reset(pair.first);
@@ -50,6 +52,8 @@ namespace mw {
 				fprintf(stderr, "An error occured while trying to create an ENet server host\n");
 				exit(EXIT_FAILURE);
 			}
+
+			thread_ = std::thread(&Server::update, this);
 		}
 	}
 

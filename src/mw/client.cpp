@@ -16,7 +16,10 @@ namespace mw {
 
 	Client::~Client() {
 		stop();
-		thread_.join();
+		if (thread_.joinable()) {
+			thread_.join();
+		}
+		
 		if (peer_ != 0) {
 			enet_peer_reset(peer_);
 		}
