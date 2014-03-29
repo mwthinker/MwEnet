@@ -5,6 +5,7 @@
 namespace mw {
 
 	LocalNetwork::LocalNetwork(ServerFilter* serverFilter) {
+		status_ = Network::NOT_ACTIVE;
 		serverFilter_ = serverFilter;
 	}
 
@@ -42,20 +43,24 @@ namespace mw {
 	}
 
 	void LocalNetwork::start() {
-		if (getStatus() == Network::NOT_ACTIVE) {
-			setStatus(Network::ACTIVE);
+		if (status_ == Network::NOT_ACTIVE) {
+			status_ = Network::ACTIVE;
 		}
 	}
 
 	void LocalNetwork::stop() {
-		if (getStatus() == Network::ACTIVE) {
-			setStatus(Network::NOT_ACTIVE);
+		if (status_ == Network::ACTIVE) {
+			status_ = Network::NOT_ACTIVE;
 		}
 	}
 
 	// Return the same id as server id.
 	int LocalNetwork::getId() const {
 		return Network::SERVER_ID;
+	}
+
+	Network::Status LocalNetwork::getStatus() const {
+		return status_;
 	}
 
 } // Namespace mw.

@@ -36,6 +36,7 @@ namespace mw {
 	}
 
 	void EnetNetwork::pushToSendBuffer(const Packet& packet, PacketType type, int toId) {
+		std::lock_guard<std::mutex> lock(mutex_);
 		// Copy buffert to send buffert. Assign the correct sender id.
 		if (packet.size() > 0) {
 			if (toId == 0) {
@@ -48,6 +49,7 @@ namespace mw {
 	}
 
 	void EnetNetwork::pushToSendBuffer(const Packet& packet, PacketType type) {
+		std::lock_guard<std::mutex> lock(mutex_);
 		if (packet.size() > 0) {
 			// Send to all, id = 0.
 			sendPackets_.push(InternalPacket(packet, getId(), type, 0));
@@ -57,6 +59,7 @@ namespace mw {
 	}
 
 	int EnetNetwork::pullFromReceiveBuffer(Packet& data) {
+		std::lock_guard<std::mutex> lock(mutex_);
 		if (receivePackets_.empty()) {
 			return 0;
 		}
@@ -73,7 +76,7 @@ namespace mw {
 	// 0 char type    |
 	// 1 char id      |
 	// 2 char data[N] |
-	ENetPacket* EnetNetwork::createEnetPacket(const Packet& packet, char id, PacketType type) const {
+	ENetPacket* EnetNetwork::createEnetPacket(const Packet& packet, char id, PacketType type) {
 		char data[Packet::MAX_SIZE];
 		unsigned int size = 2 + packet.size();
 		if (size <= Packet::MAX_SIZE) {

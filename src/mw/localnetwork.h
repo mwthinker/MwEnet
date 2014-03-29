@@ -27,7 +27,11 @@ namespace mw {
 		// Return the same id as server id.
 		int getId() const override;
 
+		Status getStatus() const override;
+
 	private:
+		Status status_;
+
 		std::queue<Packet> buffer_;
 		ServerFilter* serverFilter_;
 	};

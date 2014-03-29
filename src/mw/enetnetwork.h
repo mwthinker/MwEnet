@@ -7,6 +7,7 @@
 #include <enet/enet.h>
 
 #include <queue>
+#include <mutex>
 
 namespace mw {
 
@@ -24,7 +25,8 @@ namespace mw {
 
 	protected:
 		enum EnetConnectionType {
-			CONNECT_INFO = 0, PACKET = 1
+			CONNECT_INFO = 0,
+			PACKET = 1
 		};
 
 		class InternalPacket {
@@ -55,12 +57,13 @@ namespace mw {
 		// 0 char type    |	EnetNetwork type.
 		// 1 char id      |
 		// 2 char data[N] |
-		ENetPacket* createEnetPacket(const Packet& dataPacket, char fromId, PacketType type) const;
+		static ENetPacket* createEnetPacket(const Packet& dataPacket, char fromId, PacketType type);
 
 		std::queue<InternalPacket> sendPackets_;
 		std::queue<InternalPacket> receivePackets_;
 
 		bool acceptNewNetworkConnections_;
+		mutable std::mutex mutex_;
 
 		static int nbrOfInstances;
 	};

@@ -5,6 +5,8 @@
 
 #include <string>
 #include <vector>
+#include <thread>
+#include <mutex>
 
 namespace mw {
 
@@ -19,19 +21,22 @@ namespace mw {
 		
 		int getId() const override;
 
+		Status getStatus() const override;
+
 	protected:
 		void update();
 
-		// Override from EnetConnection.
 		InternalPacket receive(ENetEvent eNetEvent) override;
 
 	private:
 		int id_;
 		std::vector<int> ids_;
+		Status status_;
 
 		ENetPeer* peer_;
 		ENetAddress address_;
 		ENetHost* client_;
+		std::thread thread_;
 	};
 
 } // Namespace mw.

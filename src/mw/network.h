@@ -43,11 +43,14 @@ namespace mw {
 		};
 
 		Network() {
-			status_ = NOT_ACTIVE;
 		}
 
 		virtual ~Network() {
 		}
+
+		Network(const Network&) = delete;
+
+		Network& operator=(const Network&) = delete;
 
 		// Push the data (packet) to be sent to a specific client with id (toId). 
 		// Id equals zero is the same as calling pushToSendBuffer(const Packet&, PacketType).
@@ -86,17 +89,7 @@ namespace mw {
 		virtual int getId() const = 0;
 
 		// Return the current status for the network.
-		Status getStatus() const {
-			return status_;
-		}
-
-	protected:
-		void setStatus(Status status) {
-			status_ = status;
-		}
-
-	private:
-		Status status_;
+		virtual Status getStatus() const = 0;
 	};
 
 } // Namespace mw.

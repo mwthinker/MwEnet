@@ -3,6 +3,9 @@
 
 #include "enetnetwork.h"
 
+#include <thread>
+#include <mutex>
+
 namespace mw {
 
 	class Server : public EnetNetwork {
@@ -15,6 +18,8 @@ namespace mw {
 		void stop() override;		
 		
 		int getId() const override;
+
+		Status getStatus() const override;
 
 	protected:
 		void update();
@@ -39,6 +44,9 @@ namespace mw {
 		int maxNbrOfRemoteClients_;
 		ENetAddress address_;
 		ENetHost* server_;
+		Status status_;
+
+		std::thread thread_;
 
 		ServerFilter* serverFilter_;
 	};
