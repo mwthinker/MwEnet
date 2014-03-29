@@ -81,7 +81,7 @@ namespace mw {
 			ENetEvent eNetEvent;
 			int eventStatus = 0;
 			while (status_ != NOT_ACTIVE &&
-				(eventStatus = enet_host_service(client_, &eNetEvent, 50)) > 0) {
+				(eventStatus = enet_host_service(client_, &eNetEvent, 0)) > 0) {
 				switch (eNetEvent.type) {
 					case ENET_EVENT_TYPE_CONNECT:
 						printf("(Client) We got a new connection from %x\n", eNetEvent.peer->address.host);
@@ -140,8 +140,10 @@ namespace mw {
 				status_ = NOT_ACTIVE;
 			}
 
-			mutex_.unlock();
 			tmp = status_;
+			mutex_.unlock();
+			std::chrono::milliseconds duration(50);
+			std::this_thread::sleep_for(duration);
 		}
 	}
 
