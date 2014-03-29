@@ -102,7 +102,7 @@ namespace mw {
 							// No data to send? Or data through the filter is to be sent through?
 							if (iPacket.data_.size() > 0 && serverFilter_->sendThrough(iPacket.data_, iPacket.fromId_, iPacket.toId_, ServerFilter::PACKET)) {
 								// Sent to you specific?
-								if (iPacket.toId_ == getId()) {
+								if (iPacket.toId_ == id_) {
 									receivePackets_.push(iPacket);
 								} else if (iPacket.toId_ != 0) { // Send to a specific client?
 									sendPackets_.push(iPacket);
