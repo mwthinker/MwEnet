@@ -36,7 +36,7 @@ namespace mw {
 	// The server is responsible to give all client a unique  value.
 	class Network {
 	public:
-		const int SERVER_ID = 1;
+		static const int SERVER_ID = 1;
 
 		enum Status {
 			ACTIVE, DISCONNECTING, NOT_ACTIVE
