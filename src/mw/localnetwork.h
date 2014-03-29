@@ -24,8 +24,6 @@ namespace mw {
 
 		void stop() override;
 
-		void update() override;
-
 		// Return the same id as server id.
 		int getId() const override;
 

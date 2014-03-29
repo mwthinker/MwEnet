@@ -10,7 +10,7 @@
 
 namespace mw {
 
-	// An abstract class.
+	// Uses enet for implementing usefull parts of the Network interface.
 	class EnetNetwork : public Network {
 	public:
 		EnetNetwork();

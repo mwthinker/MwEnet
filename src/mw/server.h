@@ -12,13 +12,13 @@ namespace mw {
 		
 		void start() override;
 		
-		void stop() override;
-		
-		void update() override;
+		void stop() override;		
 		
 		int getId() const override;
 
 	protected:
+		void update();
+
 		InternalPacket receive(ENetEvent eNetEvent) override;
 
 	private:

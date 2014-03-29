@@ -79,12 +79,9 @@ namespace mw {
 		// End all active connections.
 		virtual void stop() = 0;
 
-		// Must be called frequently in order for the new packets to be sent and received.
-		virtual void update() = 0;		
-
-		// Return the id. The id is assigned by the server. As long as the id
-		// is a positive value it is valid. The id is guarantied to not change after
-		// it is assigned by the server after a call to start, as long as the connection
+		// Return the id. The id is assigned by the server. The id is always positive
+		// and higher than the server id. The id is guarantied to not change after it
+		// is assigned by the server after a call to start, as long as the connection
 		// is active.
 		virtual int getId() const = 0;
 

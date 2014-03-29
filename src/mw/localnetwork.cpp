@@ -53,9 +53,6 @@ namespace mw {
 		}
 	}
 
-	void LocalNetwork::update() {
-	}	
-
 	// Return the same id as server id.
 	int LocalNetwork::getId() const {
 		return Network::SERVER_ID;

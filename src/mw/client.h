@@ -13,18 +13,15 @@ namespace mw {
 		Client(int port, std::string ip);
 		~Client();
 
-		// Override from EnetConnection.
 		void start() override;
-		// Override from EnetConnection.
+		
 		void stop() override;
-
-		// Override from EnetConnection.
-		void update() override;
-
-		// Override from EnetConnection.
+		
 		int getId() const override;
 
 	protected:
+		void update();
+
 		// Override from EnetConnection.
 		InternalPacket receive(ENetEvent eNetEvent) override;
 
