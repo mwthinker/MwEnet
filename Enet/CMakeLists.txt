@@ -7,6 +7,7 @@ if (MSVC)
 	set(WINDOWS_ENET_DEPENDENCIES "ws2_32;winmm")
 else (MSVC)
 	set(CMAKE_CXX_FLAGS "-std=c++11")
+	add_definitions(-DHAS_SOCKLEN_T)
 endif (MSVC)
 
 set(SOURCES_ENET
@@ -30,5 +31,7 @@ set(SOURCES_ENET
 	src/enet/win32.h
 )
 # End of source files.
+
+include_directories(src)
 
 add_library(Enet ${SOURCES_ENET})

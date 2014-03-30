@@ -24,6 +24,7 @@ set(SOURCES_MW
 # End of source files.
 
 add_subdirectory(Enet)
+
 include_directories(Enet/src)
 
 add_library(MwEnet Enet ${SOURCES_MW})
