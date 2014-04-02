@@ -10,7 +10,7 @@ namespace mw {
 
 	class Server : public EnetNetwork {
 	public:
-		Server(int port, ServerFilter* serverFilter);
+		Server(int port, ServerInterface& serverInterface);
 		~Server();
 		
 		void start() override;
@@ -42,7 +42,7 @@ namespace mw {
 
 		std::thread thread_;
 
-		ServerFilter* serverFilter_;
+		ServerInterface& serverInterface_;
 	};
 
 } // Namespace mw.

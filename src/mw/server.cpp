@@ -5,7 +5,7 @@
 
 namespace mw {
 
-	Server::Server(int port, ServerFilter* serverFilter) {
+	Server::Server(int port, ServerInterface& serverInterface) : serverInterface_(serverInterface) {
 		status_ = NOT_ACTIVE;
 		maxNbrOfRemoteClients_ = 4;
 
@@ -13,11 +13,10 @@ namespace mw {
 		address_.port = port;
 
 		// Garanties that the server always has the correct id.
-		id_ = Network::SERVER_ID;
+		id_ = Network::SERVER_ID + 1;
 
 		// The id to be assigned to the next connected client.
 		currentId_ = id_ + 1;
-		serverFilter_ = serverFilter;
 	}
 
 	Server::~Server() {
@@ -84,16 +83,17 @@ namespace mw {
 						if (status_ != DISCONNECTING) {
 							// Signal the client that a new client is connected!
 							// Is the connection accepted?
+							int tmpId_ = currentId_ + 1;
+							++currentId_;
 							mutex_.unlock();
-							if (serverFilter_->sendThrough(Packet(), currentId_ + 1, currentId_ + 1, ServerFilter::NEW_CONNECTION)) {
+							if (serverInterface_.connectToServer(tmpId_)) {
 								mutex_.lock();
 								// Assign id to client and set the next id to an uniqe value.
-								Pair pair(eNetEvent.peer, ++currentId_);
+								Pair pair(eNetEvent.peer, tmpId_);
 								peers_.push_back(pair);
 
 								// Send info about the new client to everybody.
 								sendConnectInfoToPeers(peers_);
-								Packet iPacket;
 							} else {
 								mutex_.lock();
 								enet_peer_disconnect(eNetEvent.peer, 0);
@@ -108,15 +108,19 @@ namespace mw {
 							InternalPacket iPacket = receive(eNetEvent);
 							
 							mutex_.unlock();
-							// No data to send? Or data through the filter is to be sent through?
-							if (iPacket.data_.size() > 0 && serverFilter_->sendThrough(iPacket.data_, iPacket.fromId_, iPacket.toId_, ServerFilter::PACKET)) {
-								// Sent to you specific?
+							// No data to receive?
+							if (iPacket.data_.size()) {
+								// Sent to who?
 								mutex_.lock();
-								if (iPacket.toId_ == id_) {
-									receivePackets_.push(iPacket);
-								} else if (iPacket.toId_ != 0) { // Send to a specific client?
-									sendPackets_.push(iPacket);
-								} else { // Send to all!
+								if (iPacket.toId_ == SERVER_ID) { // To server?
+									serverInterface_.receiveToServer(iPacket.data_, iPacket.fromId_);
+								} else if (iPacket.toId_ != 0) { // Sent to a specific client?
+									if (iPacket.toId_ == id_) { // Sent to local client.
+										receivePackets_.push(iPacket);
+									} else { // Sent to Remote client
+										sendPackets_.push(iPacket);
+									}									
+								} else { // Sent to all!
 									receivePackets_.push(iPacket);
 									sendPackets_.push(iPacket);
 								}
@@ -143,7 +147,7 @@ namespace mw {
 							InternalPacket iPacket(Packet(), it->second, PacketType::RELIABLE);
 							mutex_.unlock();
 							// Signal the server that a client is disconnecting.
-							serverFilter_->sendThrough(iPacket.data_, iPacket.fromId_, iPacket.toId_, ServerFilter::DISCONNECTED);
+							serverInterface_.disconnectToServer(iPacket.fromId_);
 							mutex_.lock();
 							// Remove peer from vector.
 							std::swap(*it, peers_.back());
@@ -171,10 +175,8 @@ namespace mw {
 			while (status_ != NOT_ACTIVE && !sendPackets_.empty()) {
 				InternalPacket& iPacket = sendPackets_.front();
 
-				mutex_.unlock();
 				// Data to send? And data through the filter is allowed to be sent?
-				if (iPacket.data_.size() > 0 && serverFilter_->sendThrough(iPacket.data_, iPacket.fromId_, iPacket.toId_, ServerFilter::PACKET)) {
-					mutex_.lock();
+				if (iPacket.data_.size() > 0) {
 					// Send the packet to the peer over channel id 0.
 					// enet handles the cleen up of eNetPacket;
 					for (auto it = peers_.begin(); it != peers_.end(); ++it) {
@@ -197,8 +199,6 @@ namespace mw {
 							break;
 						}
 					}
-				} else {
-					mutex_.lock();
 				}
 
 				sendPackets_.pop();

@@ -1,20 +1,25 @@
 #include "localnetwork.h"
 
 #include <queue>
+#include <cassert>
 
 namespace mw {
 
-	LocalNetwork::LocalNetwork(ServerFilter* serverFilter) {
+	LocalNetwork::LocalNetwork(ServerInterface& serverFilter) : serverFilter_(serverFilter) {
 		status_ = Network::NOT_ACTIVE;
-		serverFilter_ = serverFilter;
 	}
 
 	void LocalNetwork::pushToSendBuffer(const Packet& packet, PacketType type, int toId) {	
 		if (packet.size() > 0 ) {
 			if (toId == 0) {
 				pushToSendBuffer(packet,type);
-			} else if (serverFilter_->sendThrough(packet,getId(),toId,ServerFilter::PACKET)) {
+			} else if (toId == 1) {
+				serverFilter_.receiveToServer(packet, getId());
+			} else if (toId == getId()) {
 				buffer_.push(packet);
+			} else {
+				// Id not assign to local client or server!
+				assert(0);
 			}
 		}
 	}
@@ -22,13 +27,7 @@ namespace mw {
 	// Send data to receiveBuffer.
 	// Send data through serverfilter (if there is one).
 	void LocalNetwork::pushToSendBuffer(const Packet& packet, PacketType type) {
-		if (packet.size() > 0 ) {
-			// Add to the receive buffer and pass it through the server filter.
-			buffer_.push(packet);
-			serverFilter_->sendThrough(packet,getId(),0,ServerFilter::PACKET);
-			// There are no more clients so the result of serverfilter 
-			// doesn't matter.
-		}
+		pushToSendBuffer(packet, type, 0);
 	}
 
 	// Receives data from server.	
@@ -53,10 +52,9 @@ namespace mw {
 			status_ = Network::NOT_ACTIVE;
 		}
 	}
-
-	// Return the same id as server id.
+	
 	int LocalNetwork::getId() const {
-		return Network::SERVER_ID;
+		return Network::SERVER_ID + 1;
 	}
 
 	Network::Status LocalNetwork::getStatus() const {

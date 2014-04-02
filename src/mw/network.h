@@ -7,33 +7,22 @@
 
 namespace mw {
 
-	class ServerFilter {
+	class ServerInterface {
 	public:
-		virtual ~ServerFilter() {
+		virtual ~ServerInterface() {
 		}
+		
+		virtual void receiveToServer(const Packet& packet, int clientId) = 0;
 
-		// Represent the type of packet received.
-		// NEW_CONNECTION - A new connection from a client.
-		// PACKET - Data stored in a packet.
-		// DISCONNECTED - A client disconnected.
-		enum Type {
-			NEW_CONNECTION, PACKET, DISCONNECTED
-		};
+		virtual bool connectToServer(int clientId) = 0;
 
-		// The server passes a received packet (packet) through. It's sent from client
-		// with id (fromId) to client with id (toId). The type (type) represents the type of packet received.
-		// The derived serverFilter class is responsible of returning the packet 
-		// which then will be delegated to all clients' (and the server's) receive buffer.
-		// Should return true if the packet should be delegated through to clients else false.
-		// A packet sent inside this function will be sent before the passing packet.
-		virtual bool sendThrough(const Packet& packet, int fromId, int toId, Type type) = 0;
+		virtual void disconnectToServer(int clientId) = 0;
 	};
 
 	// This class works as a multiuser system. Should be used
-	// to control a server/client/local system. Helps to create
-	// one system instead of three. Is supposed to be inherited by
-	// server/client/local classes.
-	// The server is responsible to give all client a unique  value.
+	// to control a server/client/local system.
+	// The server is responsible to give all client a unique value and
+	// serves as a relay station which relays all data to and from clients.
 	class Network {
 	public:
 		static const int SERVER_ID = 1;
@@ -52,31 +41,22 @@ namespace mw {
 
 		Network& operator=(const Network&) = delete;
 
-		// Push the data (packet) to be sent to a specific client with id (toId). 
-		// Id equals zero is the same as calling pushToSendBuffer(const Packet&, PacketType).
-		// If id is a real client the data will go through the server before going to the choosen client 
-		// (only if the server let it through to the choosen client).
-		// The whole buffer will be sent in the next call to update() and in the same 
-		// order as data was added.
+		// Push the data (packet) to be sent to a specific client with id (toId).
 		// Only data pushed after the call to start() will be sent.
+		// toId = 0 sends the data to all clients.
+		// toId = 1 sends the data to the server.
+		// toId = N, N > 1 sends the data to the client with corresponding id.
 		virtual void pushToSendBuffer(const Packet& packet, PacketType type, int toId) = 0;
 
-		// Push the data (packet) to be sent to all clients (including the server).
-		// The data will be copied to the receive buffer and copied to the send buffer.		
-		// The whole buffer will be sent in the next call to update() and in the same 
-		// order as data was added.
-		// When the data is sent it will go to the server passing the server filter and if the 
-		// server allowes the data free pass it will end up at all other clients.
-		// Only data pushed after the call to start() will be sent.	
+		// Push the data (packet) to all clients.
+		// Same as calling pushToSendBuffer(packet, type, 0).
 		virtual void pushToSendBuffer(const Packet& packet, PacketType type) = 0;
 
-		// Receive data from the server.
-		// Receive reliable data from all clients and the server. 
-		// Reliable packet (packet) sent through 
-		// pushToSendBuffer is passed directly here (without going through internet).
+		// Pulls received data.
+		// Local sent data this client passes without going through the internet.
 		virtual int pullFromReceiveBuffer(Packet& packet) = 0;
 
-		// Start the connection to the server/clients.
+		// Start the connection to the server.
 		virtual void start() = 0;
 
 		// End all active connections.

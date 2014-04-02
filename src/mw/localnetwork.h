@@ -9,7 +9,7 @@ namespace mw {
 
 	class LocalNetwork : public Network {
 	public:
-		LocalNetwork(ServerFilter* serverFilter);
+		LocalNetwork(ServerInterface& serverFilter);
 
 		void pushToSendBuffer(const Packet& packet, PacketType type, int toId) override;
 
@@ -33,7 +33,7 @@ namespace mw {
 		Status status_;
 
 		std::queue<Packet> buffer_;
-		ServerFilter* serverFilter_;
+		ServerInterface& serverFilter_;
 	};
 
 } // Namespace mw.
