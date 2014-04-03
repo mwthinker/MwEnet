@@ -12,6 +12,10 @@ namespace mw {
 	public:
 		Server(int port, ServerInterface& serverInterface);
 		~Server();
+
+		void serverPushToSendBuffer(const Packet& packet, PacketType type, int toId);
+
+		void serverPushToSendBuffer(const Packet& packet, PacketType type);
 		
 		void start() override;
 		

@@ -19,6 +19,29 @@ namespace mw {
 		currentId_ = id_ + 1;
 	}
 
+	void Server::serverPushToSendBuffer(const Packet& packet, PacketType type, int toId) {
+		std::lock_guard<std::mutex> lock(mutex_);
+		// Copy buffert to send buffert. Assign the correct sender id.
+		if (packet.size() > 0) {
+			if (toId == 0) {
+				pushToSendBuffer(packet, type);
+			} else {
+				// Send to others!
+				sendPackets_.push(InternalPacket(packet, SERVER_ID, type, toId));
+			}
+		}
+	}
+
+	void Server::serverPushToSendBuffer(const Packet& packet, PacketType type) {
+		std::lock_guard<std::mutex> lock(mutex_);
+		if (packet.size() > 0) {
+			// Send to all, id = 0.
+			sendPackets_.push(InternalPacket(packet, SERVER_ID, type, 0));
+			// Send to local client.
+			receivePackets_.push(InternalPacket(packet, SERVER_ID, type, id_));
+		}
+	}
+
 	Server::~Server() {
 		stop();
 		if (thread_.joinable()) {
