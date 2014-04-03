@@ -66,7 +66,6 @@ namespace mw {
 		std::queue<InternalPacket> sendPackets_;
 		std::queue<InternalPacket> receivePackets_;
 
-		bool acceptNewNetworkConnections_;
 		int id_;
 		Status status_;
 		mutable std::mutex mutex_;

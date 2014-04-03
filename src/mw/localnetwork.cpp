@@ -30,6 +30,16 @@ namespace mw {
 		pushToSendBuffer(packet, type, 0);
 	}
 
+	void LocalNetwork::serverPushToSendBuffer(const Packet& packet, Network::PacketType type, int toId) {
+		pushToSendBuffer(packet, type, toId);
+		// Must be sent to the local client, or to everybody which is the same as the local client.
+		assert(toId == 0 || toId == getId());
+	}
+
+	void LocalNetwork::serverPushToSendBuffer(const Packet& packet, Network::PacketType type) {
+		pushToSendBuffer(packet, type, 0);
+	}
+
 	// Receives data from server.	
 	int LocalNetwork::pullFromReceiveBuffer(Packet& packet) {
 		if (buffer_.empty()) {

@@ -1,4 +1,4 @@
-#include "client.h"
+#include "enetclient.h"
 
 #include <algorithm>
 #include <string>
@@ -6,7 +6,7 @@
 
 namespace mw {
 
-	Client::Client(int port, std::string ip) {
+	EnetClient::EnetClient(int port, std::string ip) {
 		status_ = NOT_ACTIVE;
 		enet_address_set_host(&address_, ip.c_str());
 		address_.port = port;
@@ -14,7 +14,7 @@ namespace mw {
 		peer_ = 0;
 	}
 
-	Client::~Client() {
+	EnetClient::~EnetClient() {
 		stop();
 		if (thread_.joinable()) {
 			thread_.join();
@@ -28,7 +28,7 @@ namespace mw {
 		}
 	}
 
-	void Client::start() {
+	void EnetClient::start() {
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (status_ == NOT_ACTIVE) {
 			status_ = ACTIVE;
@@ -58,11 +58,11 @@ namespace mw {
 				std::cerr << "No available peers for initializing an ENet connection" << std::endl;
 				exit(EXIT_FAILURE);
 			}
-			thread_ = std::thread(&Client::update, this);
+			thread_ = std::thread(&EnetClient::update, this);
 		}
 	}
 
-	void Client::stop() {
+	void EnetClient::stop() {
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (status_ == ACTIVE) {
 			status_ = DISCONNECTING;
@@ -72,7 +72,7 @@ namespace mw {
 		}
 	}
 
-	void Client::update() {
+	void EnetClient::update() {
 		mutex_.lock();
 		Status tmp = status_;
 		mutex_.unlock();
@@ -147,7 +147,7 @@ namespace mw {
 		}
 	}
 
-	Client::InternalPacket Client::receive(ENetEvent eNetEvent) {
+	EnetClient::InternalPacket EnetClient::receive(ENetEvent eNetEvent) {
 		ENetPacket* packet = eNetEvent.packet;
 		char type = packet->data[0];
 		char id = packet->data[1];

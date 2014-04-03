@@ -1,52 +1,36 @@
 #ifndef MW_SERVER_H
 #define MW_SERVER_H
 
-#include "enetnetwork.h"
+#include "packet.h"
+#include "network.h"
 
-#include <thread>
-#include <mutex>
+#include <vector>
 
 namespace mw {
 
-	class Server : public EnetNetwork {
+	class ServerInterface {
 	public:
-		Server(int port, ServerInterface& serverInterface);
-		~Server();
+		virtual ~ServerInterface() {
+		}
 
-		void serverPushToSendBuffer(const Packet& packet, PacketType type, int toId);
+		virtual void receiveToServer(const Packet& packet, int clientId) = 0;
 
-		void serverPushToSendBuffer(const Packet& packet, PacketType type);
-		
-		void start() override;
-		
-		void stop() override;
+		virtual bool connectToServer(int clientId) = 0;
 
-	protected:
-		void update();
+		virtual void disconnectToServer(int clientId) = 0;
+	};
 
-		InternalPacket receive(ENetEvent eNetEvent) override;
+	// This class works as a server.
+	// The server is responsible to give all client a unique value and
+	// serves as a relay station which relays all data to and from clients.
+	class Server {
+	public:
+		virtual ~Server() {
+		}
 
-	private:
-		typedef std::pair<ENetPeer*, int> Pair; // first: Peer second: id.
+		virtual void serverPushToSendBuffer(const Packet& packet, Network::PacketType type, int toId) = 0;
 
-		// Sends connectInfo to new connected client. Client is assigned
-		// the number id.
-		// char type = |CONNECT_INFO
-		// char id   = |id
-		// char id1  = |?
-		//		...
-		// char idN  = |?
-		void sendConnectInfoToPeers(const std::vector<Pair>& peers) const;
-		
-		int currentId_;
-		std::vector<Pair> peers_;
-		int maxNbrOfRemoteClients_;
-		ENetAddress address_;
-		ENetHost* server_;
-
-		std::thread thread_;
-
-		ServerInterface& serverInterface_;
+		virtual void serverPushToSendBuffer(const Packet& packet, Network::PacketType type) = 0;
 	};
 
 } // Namespace mw.

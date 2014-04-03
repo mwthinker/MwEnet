@@ -7,18 +7,6 @@
 
 namespace mw {
 
-	class ServerInterface {
-	public:
-		virtual ~ServerInterface() {
-		}
-		
-		virtual void receiveToServer(const Packet& packet, int clientId) = 0;
-
-		virtual bool connectToServer(int clientId) = 0;
-
-		virtual void disconnectToServer(int clientId) = 0;
-	};
-
 	// This class works as a multiuser system. Should be used
 	// to control a server/client/local system.
 	// The server is responsible to give all client a unique value and
@@ -31,15 +19,12 @@ namespace mw {
 			ACTIVE, DISCONNECTING, NOT_ACTIVE
 		};
 
-		Network() {
-		}
+		enum PacketType {
+			RELIABLE, UN_RELIABLE
+		};		
 
 		virtual ~Network() {
 		}
-
-		Network(const Network&) = delete;
-
-		Network& operator=(const Network&) = delete;
 
 		// Push the data (packet) to be sent to a specific client with id (toId).
 		// Only data pushed after the call to start() will be sent.

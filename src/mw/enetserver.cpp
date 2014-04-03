@@ -1,13 +1,12 @@
-#include "server.h"
+#include "enetserver.h"
 
 #include <vector>
 #include <iostream>
 
 namespace mw {
 
-	Server::Server(int port, ServerInterface& serverInterface) : serverInterface_(serverInterface) {
+	EnetServer::EnetServer(int port, ServerInterface& serverInterface) : serverInterface_(serverInterface) {
 		status_ = NOT_ACTIVE;
-		maxNbrOfRemoteClients_ = 4;
 
 		address_.host = ENET_HOST_ANY;
 		address_.port = port;
@@ -19,7 +18,7 @@ namespace mw {
 		currentId_ = id_ + 1;
 	}
 
-	void Server::serverPushToSendBuffer(const Packet& packet, PacketType type, int toId) {
+	void EnetServer::serverPushToSendBuffer(const Packet& packet, PacketType type, int toId) {
 		std::lock_guard<std::mutex> lock(mutex_);
 		// Copy buffert to send buffert. Assign the correct sender id.
 		if (packet.size() > 0) {
@@ -32,7 +31,7 @@ namespace mw {
 		}
 	}
 
-	void Server::serverPushToSendBuffer(const Packet& packet, PacketType type) {
+	void EnetServer::serverPushToSendBuffer(const Packet& packet, PacketType type) {
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (packet.size() > 0) {
 			// Send to all, id = 0.
@@ -42,7 +41,7 @@ namespace mw {
 		}
 	}
 
-	Server::~Server() {
+	EnetServer::~EnetServer() {
 		stop();
 		if (thread_.joinable()) {
 			thread_.join();
@@ -56,7 +55,7 @@ namespace mw {
 		}
 	}
 
-	void Server::start() {
+	void EnetServer::start() {
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (status_ == NOT_ACTIVE) {
 			status_ = ACTIVE;
@@ -75,11 +74,11 @@ namespace mw {
 				exit(EXIT_FAILURE);
 			}
 
-			thread_ = std::thread(&Server::update, this);
+			thread_ = std::thread(&EnetServer::update, this);
 		}
 	}
 
-	void Server::stop() {
+	void EnetServer::stop() {
 		std::lock_guard<std::mutex> lock(mutex_);
 		if (status_ == ACTIVE) {
 			status_ = DISCONNECTING;
@@ -90,7 +89,7 @@ namespace mw {
 		}
 	}
 
-	void Server::update() {
+	void EnetServer::update() {
 		mutex_.lock();
 		Status tmp = status_;
 		mutex_.unlock();
@@ -243,7 +242,7 @@ namespace mw {
 		}
 	}
 
-	Server::InternalPacket Server::receive(ENetEvent eNetEvent) {
+	EnetServer::InternalPacket EnetServer::receive(ENetEvent eNetEvent) {
 		ENetPacket* packet = eNetEvent.packet;
 		//char id = packet->data[1];
 		//Find the id for the client which sent the package.
@@ -278,7 +277,7 @@ namespace mw {
 	// 2   char id1  = |?
 	//		...
 	// N-1 char idN  = |?
-	void Server::sendConnectInfoToPeers(const std::vector<Pair>& peers) const {
+	void EnetServer::sendConnectInfoToPeers(const std::vector<Pair>& peers) const {
 		char data[256];
 		data[0] = CONNECT_INFO;
 		for (const auto& pair : peers) {

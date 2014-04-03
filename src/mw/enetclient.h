@@ -1,5 +1,5 @@
-#ifndef MW_CLIENT_H
-#define MW_CLIENT_H
+#ifndef MW_ENETCLIENT_H
+#define MW_ENETCLIENT_H
 
 #include "enetnetwork.h"
 
@@ -10,10 +10,10 @@
 
 namespace mw {
 
-	class Client : public EnetNetwork {
+	class EnetClient : public EnetNetwork {
 	public:
-		Client(int port, std::string ip);
-		~Client();
+		EnetClient(int port, std::string ip);
+		~EnetClient();
 
 		void start() override;
 		
@@ -35,4 +35,4 @@ namespace mw {
 
 } // Namespace mw.
 
-#endif // MW_CLIENT_H
+#endif // MW_ENETCLIENT_H

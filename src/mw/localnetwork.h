@@ -2,12 +2,13 @@
 #define MW_LOCALNETWORK_H
 
 #include "network.h"
+#include "server.h"
 
 #include <queue>
 
 namespace mw {
 
-	class LocalNetwork : public Network {
+	class LocalNetwork : public Network, public Server {
 	public:
 		LocalNetwork(ServerInterface& serverFilter);
 
@@ -19,6 +20,10 @@ namespace mw {
 
 		// Receives data from server.	
 		int pullFromReceiveBuffer(Packet& packet) override;
+
+		void serverPushToSendBuffer(const Packet& packet, Network::PacketType type, int toId) override;
+
+		void serverPushToSendBuffer(const Packet& packet, Network::PacketType type) override;
 
 		void start() override;
 

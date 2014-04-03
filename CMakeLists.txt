@@ -11,15 +11,17 @@ endif (MSVC)
 
 # Source files.
 set(SOURCES_MW
-	src/mw/client.cpp
+	src/mw/enetclient.cpp
+	src/mw/enetclient.h
 	src/mw/enetnetwork.cpp
 	src/mw/enetnetwork.h
 	src/mw/network.h
 	src/mw/packet.h
-	src/mw/server.cpp
-	src/mw/server.h
+	src/mw/enetserver.cpp
+	src/mw/enetserver.h
 	src/mw/localnetwork.cpp
 	src/mw/localnetwork.h
+	src/mw/server.h
 )
 # End of source files.
 

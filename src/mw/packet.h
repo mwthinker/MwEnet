@@ -6,10 +6,6 @@
 
 namespace mw {
 
-	enum PacketType {
-		RELIABLE, UN_RELIABLE
-	};
-
 	class Packet {
 	public:
 		static const size_t MAX_SIZE = 128;

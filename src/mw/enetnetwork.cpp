@@ -16,8 +16,6 @@ namespace mw {
 	int EnetNetwork::nbrOfInstances = 0;
 
 	EnetNetwork::EnetNetwork() {
-		acceptNewNetworkConnections_ = true;
-
 		// a. Initialize enet
 		if (nbrOfInstances < 1) {
 			++nbrOfInstances;
