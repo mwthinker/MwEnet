@@ -35,9 +35,22 @@ namespace mw {
 		Status getStatus() const override;
 
 	private:
+		void pushToSendBuffer(const Packet& packet, Network::PacketType type, int toId, bool server);
+
+		struct Data {
+			Data() {
+			}
+
+			Data(const Packet& packet, bool server) : packet_(packet), server_(server) {
+			}
+
+			Packet packet_;
+			bool server_;
+		};
+
 		Status status_;
 
-		std::queue<Packet> buffer_;
+		std::queue<Data> buffer_;
 		ServerInterface& serverFilter_;
 	};
 
