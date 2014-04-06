@@ -12,7 +12,7 @@ namespace mw {
 	void LocalNetwork::pushToSendBuffer(const Packet& packet, PacketType type, int toId) {	
 		if (packet.size() > 0 ) {
 			if (toId == 0) {
-				pushToSendBuffer(packet,type);
+				buffer_.push(packet);
 			} else if (toId == 1) {
 				serverFilter_.receiveToServer(packet, getId());
 			} else if (toId == getId()) {
