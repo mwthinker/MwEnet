@@ -8,6 +8,7 @@
 
 #include <queue>
 #include <mutex>
+#include <condition_variable>
 
 namespace mw {
 
@@ -17,15 +18,15 @@ namespace mw {
 		EnetNetwork();
 		virtual ~EnetNetwork();
 
-		void pushToSendBuffer(const Packet& packet, PacketType type, int toId) override;
+		void pushToSendBuffer(const Packet& packet, PacketType type, int toId) override final;
 
-		void pushToSendBuffer(const Packet& packet, PacketType type) override;
+		void pushToSendBuffer(const Packet& packet, PacketType type) override final;
 
-		int pullFromReceiveBuffer(Packet& data) override;
+		int pullFromReceiveBuffer(Packet& data) override final;
 
-		int getId() const override;
+		int getId() const override final;
 
-		Status getStatus() const override;
+		Status getStatus() const override final;
 		
 	protected:
 		enum EnetConnectionType {
@@ -69,6 +70,7 @@ namespace mw {
 		int id_;
 		Status status_;
 		mutable std::mutex mutex_;
+		std::condition_variable condition_;
 
 		static int nbrOfInstances;
 	};

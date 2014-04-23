@@ -18,29 +18,6 @@ namespace mw {
 		currentId_ = id_ + 1;
 	}
 
-	void EnetServer::serverPushToSendBuffer(const Packet& packet, PacketType type, int toId) {
-		std::lock_guard<std::mutex> lock(mutex_);
-		// Copy buffert to send buffert. Assign the correct sender id.
-		if (packet.size() > 0) {
-			if (toId == 0) {
-				pushToSendBuffer(packet, type);
-			} else {
-				// Send to others!
-				sendPackets_.push(InternalPacket(packet, SERVER_ID, type, toId));
-			}
-		}
-	}
-
-	void EnetServer::serverPushToSendBuffer(const Packet& packet, PacketType type) {
-		std::lock_guard<std::mutex> lock(mutex_);
-		if (packet.size() > 0) {
-			// Send to all, id = 0.
-			sendPackets_.push(InternalPacket(packet, SERVER_ID, type, 0));
-			// Send to local client.
-			receivePackets_.push(InternalPacket(packet, SERVER_ID, type, id_));
-		}
-	}
-
 	EnetServer::~EnetServer() {
 		stop();
 		if (thread_.joinable()) {
@@ -53,6 +30,35 @@ namespace mw {
 		if (server_ != 0) {
 			enet_host_destroy(server_);
 		}
+	}
+
+	void EnetServer::serverPushToSendBuffer(const Packet& packet, PacketType type, int toId) {
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+			// Copy buffert to send buffert. Assign the correct sender id.
+			if (packet.size() > 0) {
+				if (toId == 0) {
+					pushToSendBuffer(packet, type);
+				} else {
+					// Send to others!
+					sendPackets_.push(InternalPacket(packet, SERVER_ID, type, toId));
+				}
+			}
+		}
+		condition_.notify_one();
+	}
+
+	void EnetServer::serverPushToSendBuffer(const Packet& packet, PacketType type) {
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+			if (packet.size() > 0) {
+				// Send to all, id = 0.
+				sendPackets_.push(InternalPacket(packet, SERVER_ID, type, 0));
+				// Send to local client.
+				receivePackets_.push(InternalPacket(packet, SERVER_ID, type, id_));
+			}
+		}
+		condition_.notify_one();
 	}
 
 	void EnetServer::start() {
@@ -79,22 +85,22 @@ namespace mw {
 	}
 
 	void EnetServer::stop() {
-		std::lock_guard<std::mutex> lock(mutex_);
-		if (status_ == ACTIVE) {
-			status_ = DISCONNECTING;
-			for (auto it = peers_.begin(); it != peers_.end(); ++it) {
-				ENetPeer* peer = it->first;
-				enet_peer_disconnect(peer, 0);
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+			if (status_ == ACTIVE) {
+				status_ = DISCONNECTING;
+				for (auto it = peers_.begin(); it != peers_.end(); ++it) {
+					ENetPeer* peer = it->first;
+					enet_peer_disconnect(peer, 0);
+				}
 			}
 		}
+		condition_.notify_one();
 	}
 
 	void EnetServer::update() {
 		mutex_.lock();
-		Status tmp = status_;
-		mutex_.unlock();
-		while (tmp != NOT_ACTIVE) {
-			mutex_.lock();
+		while (status_ != NOT_ACTIVE) {
 			ENetEvent eNetEvent;
 			int eventStatus = 0;
 			while (status_ != NOT_ACTIVE &&
@@ -107,9 +113,10 @@ namespace mw {
 							// Is the connection accepted?
 							int tmpId_ = currentId_ + 1;
 							++currentId_;
-							mutex_.unlock();
+							// Already own the mutex.
+							std::unique_lock<std::mutex> lock(mutex_, std::adopt_lock);
+							condition_.wait(lock);
 							if (serverInterface_.connectToServer(tmpId_)) {
-								mutex_.lock();
 								// Assign id to client and set the next id to an uniqe value.
 								Pair pair(eNetEvent.peer, tmpId_);
 								peers_.push_back(pair);
@@ -117,9 +124,10 @@ namespace mw {
 								// Send info about the new client to everybody.
 								sendConnectInfoToPeers(peers_);
 							} else {
-								mutex_.lock();
 								enet_peer_disconnect(eNetEvent.peer, 0);
 							}
+							// To keep the mutex locked!
+							lock.release();
 						} else {
 							// Stops new connections to be made.
 							enet_peer_disconnect(eNetEvent.peer, 0);
@@ -129,11 +137,12 @@ namespace mw {
 						if (status_ != NOT_ACTIVE) {
 							InternalPacket iPacket = receive(eNetEvent);
 							
-							mutex_.unlock();
 							// No data to receive?
 							if (iPacket.data_.size()) {
+								// Already own the mutex.
+								std::unique_lock<std::mutex> lock(mutex_, std::adopt_lock);
+								condition_.wait(lock);
 								// Sent to who?
-								mutex_.lock();
 								if (iPacket.toId_ == SERVER_ID) { // To server?
 									serverInterface_.receiveToServer(iPacket.data_, iPacket.fromId_);
 								} else if (iPacket.toId_ != 0) { // Sent to a specific client?
@@ -146,8 +155,8 @@ namespace mw {
 									receivePackets_.push(iPacket);
 									sendPackets_.push(iPacket);
 								}
-							} else {
-								mutex_.lock();
+								// To keep the mutex locked!
+								lock.release();
 							}
 						}
 						enet_packet_destroy(eNetEvent.packet);
@@ -167,10 +176,12 @@ namespace mw {
 						// and not a turned down connection).
 						if (it != peers_.end()) {
 							InternalPacket iPacket(Packet(), it->second, PacketType::RELIABLE);
-							mutex_.unlock();
+							// Already own the mutex.
+							std::unique_lock<std::mutex> lock(mutex_, std::adopt_lock);
+							condition_.wait(lock);
 							// Signal the server that a client is disconnecting.
 							serverInterface_.disconnectToServer(iPacket.fromId_);
-							mutex_.lock();
+							lock.release();
 							// Remove peer from vector.
 							std::swap(*it, peers_.back());
 							peers_.pop_back();
@@ -234,12 +245,13 @@ namespace mw {
 				server_ = 0;
 				status_ = NOT_ACTIVE;
 			}
-
-			tmp = status_;
+			
 			mutex_.unlock();
 			std::chrono::milliseconds duration(50);
 			std::this_thread::sleep_for(duration);
+			mutex_.lock();
 		}
+		mutex_.unlock();
 	}
 
 	EnetServer::InternalPacket EnetServer::receive(ENetEvent eNetEvent) {

@@ -6,13 +6,14 @@
 
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 namespace mw {
 
 	class EnetServer : public EnetNetwork, public Server {
 	public:
 		EnetServer(int port, ServerInterface& serverInterface);
-		virtual ~EnetServer();
+		~EnetServer();
 
 		EnetServer(const EnetServer&) = delete;
 		EnetServer& operator=(const EnetServer&) = delete;
@@ -48,7 +49,6 @@ namespace mw {
 		ENetHost* server_;
 
 		std::thread thread_;
-
 		ServerInterface& serverInterface_;
 	};
 

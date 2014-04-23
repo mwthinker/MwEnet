@@ -34,39 +34,49 @@ namespace mw {
 	}
 
 	void EnetNetwork::pushToSendBuffer(const Packet& packet, PacketType type, int toId) {
-		std::lock_guard<std::mutex> lock(mutex_);
-		// Copy buffert to send buffert. Assign the correct sender id.
-		if (packet.size() > 0) {
-			if (toId == 0) {
-				pushToSendBuffer(packet, type);
-			} else {
-				// Send to others!
-				sendPackets_.push(InternalPacket(packet, id_, type, toId));
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+			// Copy buffert to send buffert. Assign the correct sender id.
+			if (packet.size() > 0) {
+				if (toId == 0) {
+					pushToSendBuffer(packet, type);
+				} else {
+					// Send to others!
+					sendPackets_.push(InternalPacket(packet, id_, type, toId));
+				}
 			}
 		}
+		condition_.notify_one();
 	}
 
 	void EnetNetwork::pushToSendBuffer(const Packet& packet, PacketType type) {
-		std::lock_guard<std::mutex> lock(mutex_);
-		if (packet.size() > 0) {
-			// Send to all, id = 0.
-			sendPackets_.push(InternalPacket(packet, id_, type, 0));
-			// Sent from yourself, id = getId().
-			receivePackets_.push(InternalPacket(packet, id_, type, id_));
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+			if (packet.size() > 0) {
+				// Send to all, id = 0.
+				sendPackets_.push(InternalPacket(packet, id_, type, 0));
+				// Sent from yourself, id = getId().
+				receivePackets_.push(InternalPacket(packet, id_, type, id_));
+			}
 		}
+		condition_.notify_one();
 	}
 
 	int EnetNetwork::pullFromReceiveBuffer(Packet& data) {
-		std::lock_guard<std::mutex> lock(mutex_);
-		if (receivePackets_.empty()) {
-			return 0;
+		int id;
+		{
+			std::lock_guard<std::mutex> lock(mutex_);
+			if (receivePackets_.empty()) {
+				return 0;
+			}
+
+			InternalPacket& iPacket = receivePackets_.front();
+			data = iPacket.data_;
+			id = iPacket.fromId_;
+
+			receivePackets_.pop();
 		}
-
-		InternalPacket& iPacket = receivePackets_.front();
-		data = iPacket.data_;
-		int id = iPacket.fromId_;
-
-		receivePackets_.pop();
+		condition_.notify_one();
 		return id;
 	}
 
