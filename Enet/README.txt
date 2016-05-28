@@ -1,6 +1,6 @@
 The enet source code.
 
-Is copied from enet-1.3.11. All files except the 
+Is copied from enet-1.3.13. All files except the 
 license file is removed from the original folder 
 found at http://enet.bespin.org/SourceDistro.html.
 
