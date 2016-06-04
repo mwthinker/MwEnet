@@ -9,6 +9,11 @@ else (MSVC)
 	set(CMAKE_CXX_FLAGS "-std=c++11")
 endif (MSVC)
 
+add_subdirectory(Enet)
+
+include_directories(Enet/src)
+
+
 # Source files.
 set(SOURCES_MW
 	src/mw/enetclient.cpp
@@ -25,8 +30,5 @@ set(SOURCES_MW
 )
 # End of source files.
 
-add_subdirectory(Enet)
-
-include_directories(Enet/src)
 
 add_library(MwEnet Enet ${SOURCES_MW})
